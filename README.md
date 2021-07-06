@@ -1,2 +1,4 @@
-# passwordManager
-Password Manager
+# passMan
+Password Manager 
+
+Store your accounts locally and safe.
