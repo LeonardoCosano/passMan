@@ -2,7 +2,6 @@
 
 from os import write, system
 
-
 def main():
     option = writeMenu()
     while option != False:
@@ -15,7 +14,7 @@ def main():
             exit()
         option = writeMenu()
 
-# Extensible menu.
+# Extensible menu: Shows PassMan functionality.
 # Returns number related to selected function (or false if something went wrong)
 def writeMenu():
     print("\n---------------------\n")
