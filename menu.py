@@ -1,5 +1,6 @@
 # Main menu
 
+from main import newAccount
 from os import write, system
 
 def main():
@@ -8,7 +9,8 @@ def main():
         if option == 1:
             print ("searchAccount()")
         elif option == 2:
-            print ("addAccount()")
+            print ("newAccount()")
+            newAccount()
         else:
             print ("Leaving")
             exit()
