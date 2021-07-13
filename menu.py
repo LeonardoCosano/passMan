@@ -1,29 +1,28 @@
 # Main menu
 
-from main import newAccount
+from main import newAccount, searchAccount
 from os import write, system
+from utils import colors
 
 def main():
     option = writeMenu()
     while option != False:
         if option == 1:
-            print ("searchAccount()")
+            searchAccount()
         elif option == 2:
-            print ("newAccount()")
             newAccount()
         else:
-            print ("Leaving")
             exit()
         option = writeMenu()
 
 # Extensible menu: Shows PassMan functionality.
 # Returns number related to selected function (or false if something went wrong)
 def writeMenu():
-    print("\n---------------------\n")
-    print("-------PassMan-------\n")
-    print("---------------------\n")
-    print("1. Search my accounts")
-    print("2. Add new accounts")
+    print(colors.GREEN + "\n~~~~~~~~~~~~~~~~~~~~~\n")
+    print("~~~~~~" + colors.VIOLET + " PassMan " + colors.GREEN + "~~~~~~\n")
+    print("~~~~~~~~~~~~~~~~~~~~~\n" + colors.DEFAULT)
+    print("1. Search accounts")
+    print("2. Add new account")        
     option = int(input ("Choose: "))
     if option > 2:
         return False
