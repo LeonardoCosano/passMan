@@ -18,6 +18,7 @@ def main():
 # Extensible menu: Shows PassMan functionality.
 # Returns number related to selected function (or false if something went wrong)
 def writeMenu():
+    system("cls")
     print(colors.GREEN + "\n~~~~~~~~~~~~~~~~~~~~~\n")
     print("~~~~~~" + colors.VIOLET + " PassMan " + colors.GREEN + "~~~~~~\n")
     print("~~~~~~~~~~~~~~~~~~~~~\n" + colors.DEFAULT)

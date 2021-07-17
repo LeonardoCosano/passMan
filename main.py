@@ -26,7 +26,7 @@ def newAccount():
 def addAccount(isNewService, service, userId, password):
     addStorageFile = open('storageFile', 'a')
     if isNewService:
-        addStorageFile.write("\n+" + service + "\n-" + userId + "\n" + cipher(password))
+        addStorageFile.write("+" + service + "\n-" + userId + "\n" + cipher(password) + "\n")
         addStorageFile.close()
         return
     
@@ -89,7 +89,7 @@ def generatePassword():
         if tokenIndex != False:
             generatedPassword = generatedPassword + tokens[tokenIndex]
 
-    print("Generated password: " + colors.VIOLET + generatedPassword + colors.DEFAULT)
+    print("Generated " + colors.VIOLET + "password: " + colors.DEFAULT + generatedPassword)
     pyperclip.copy(generatedPassword)
     return generatedPassword
 
@@ -99,9 +99,9 @@ def checkData(service, userId, password):
     print("Username:\t" + colors.VIOLET + userId + colors.DEFAULT)
     confirmation = input("Password:\t" + colors.VIOLET + password + colors.DEFAULT + "\n")
 
-    if confirmation == "y":
-        return True
-    return False
+    if confirmation == "N":
+        return False
+    return True
 
 # Encripts text
 def cipher(password):
@@ -117,9 +117,10 @@ def searchAccount():
     text = storageFile.read()
     index = text.find(service)
     if index == -1:
-        print("Account not found in " + service)
+        print("Account" + colors.RED + " not found " + colors.DEFAULT + "for " + service + "\n")
+        Exit = input("Press " + colors.VIOLET + "any key" + colors.DEFAULT + " to continue...\n") 
         return
     
     text = text[index+len(service):text.find("+",index)]
-    print(text)
-    
+    print(text.replace("-", "\n"))
+    Exit = input("\nPress " + colors.VIOLET + "any key" + colors.DEFAULT + " to continue...\n")    
