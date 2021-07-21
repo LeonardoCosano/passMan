@@ -1,5 +1,6 @@
 # Des implementation
 import numpy as np
+import math
 
 # Runs algorithm - cipher
 def des(text, key):
@@ -56,7 +57,7 @@ def text2bin(text):
     binaryRepresentation = ""
     array = bytearray(text, "utf8")
     for byte in array:
-        binary = bin(byte)
+        binary = bin(byte)[2:]
         binaryRepresentation = binaryRepresentation + binary
 
     return binaryRepresentation
@@ -106,10 +107,10 @@ def checkInput(code):
 
 # Split binary representation "BinaryText" into parts of 64 bits
 def splitBlocks(BinaryText):
-    nOfBlocks = int(len(BinaryText)/64)
+    nOfBlocks = math.ceil(len(BinaryText)/64)
     mBlocks = []
     for i in range(nOfBlocks):
-        mBlocks[i] = BinaryText[64*i:64*(i+1)]
+        mBlocks.append(BinaryText[64*i:64*(i+1)])
 
     while len(mBlocks[nOfBlocks-1])<64:
         mBlocks[nOfBlocks-1] = mBlocks[nOfBlocks-1] + mBlocks[nOfBlocks-1]
@@ -120,7 +121,7 @@ def splitBlocks(BinaryText):
 # It applies a permutation (perm) to a binary string (binary)
 def applyPerm(binary, perm):
     binaryPermutated = ""
-    for i in len(perm):
+    for i in range(len(perm)):
         binaryPermutated = binaryPermutated + binary[perm[i]]
     
     return binaryPermutated
@@ -144,7 +145,8 @@ def splitKey(key):
             shift = 1
         C0 = np.roll(C0,-(28-shift))
         D0 = np.roll(D0,-(28-shift))
-        subKeys[i] = applyPerm(C0+D0, PermC2)
+        complete = str(C0) + str(D0)
+        subKeys[i] = applyPerm(complete, PermC2)
 
     return subKeys
 
