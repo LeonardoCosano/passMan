@@ -2,31 +2,38 @@
 import numpy as np
 import math
 
-# Runs algorithm - cipher
+############################
+# Runs algorithm - cipher ##
+############################
+
 def des(text, key):
     #Inputs and algorithm variables
-    binaryText = text2bin(text)
-    binaryTextSplited = splitBlocks(binaryText)
-    binaryKey = formatKey(key)
     InitialPerm = [58, 50, 42, 34, 26, 18, 10, 2, 60, 52, 44, 36, 28, 20, 12, 4, 62, 54, 46, 38, 30, 22, 14, 6, 64, 56, 48, 40, 32, 24, 16, 8, 57, 49, 41, 33, 25, 17, 9, 1, 59, 51, 43, 35, 27, 19, 11, 3, 61, 53, 45, 37, 29, 21, 13, 5, 63, 55, 47, 39, 31, 23, 15, 7]
     InitialPermInv = [40, 8, 48, 16, 56, 24, 64, 32, 39, 7, 47, 15, 55, 23, 63, 31, 38, 6, 46, 14, 54, 22, 62, 30, 37, 5, 45, 13, 53, 21, 61, 29, 36, 4, 44, 12, 52, 20, 60, 28, 35, 3, 43, 11, 51, 19, 59, 27, 34, 2, 42, 10, 50, 18, 58, 26, 33, 1, 41, 9, 49, 17, 57, 25]
-    MessageCipher = ""
+    binaryText = text2bin(text)
+    binaryKey = formatKey(key)
+    cipher = ""
 
     #Algorithm
+    binaryTextSplited = splitBlocks(binaryText)
     subKeys = splitKey(binaryKey)
-    for blocks in binaryTextSplited:
+    for blocks in range(len(binaryTextSplited)):
         message = applyPerm(binaryTextSplited[blocks], InitialPerm)
         Li = message[0:32]
         Ri = message[32:64]
         applyFeistelRounds(Li,Ri,subKeys)
         message = applyPerm(Ri + Li,InitialPermInv)
-        MessageCipher += message
+        cipher += message
     
-    BinaryCipher = MessageCipher
-    HexadecimalCipher = bin2hex(BinaryCipher)
-    return HexadecimalCipher
+    binaryCipher = cipher
+    print("CIFRADO BINARIO COMPLETO --->" + binaryCipher)
+    hexadecimalCipher = bin2hex(binaryCipher)
+    return hexadecimalCipher
 
-# Runs algorithm - uncipher
+############################
+# Runs algorithm uncipher ##
+############################
+
 def unDes(code, key):
     #Inputs and algorithm variables
     InitialPerm = [58, 50, 42, 34, 26, 18, 10, 2, 60, 52, 44, 36, 28, 20, 12, 4, 62, 54, 46, 38, 30, 22, 14, 6, 64, 56, 48, 40, 32, 24, 16, 8, 57, 49, 41, 33, 25, 17, 9, 1, 59, 51, 43, 35, 27, 19, 11, 3, 61, 53, 45, 37, 29, 21, 13, 5, 63, 55, 47, 39, 31, 23, 15, 7]
@@ -37,7 +44,7 @@ def unDes(code, key):
     resolved = ""
 
     subKeys = np.flip(splitKey(key), 0)
-    for block in code:
+    for block in range(len(code)):
         message = applyPerm(code[block],InitialPerm)
         Li = message[0:32]
         Ri = message[32:64]
@@ -47,8 +54,15 @@ def unDes(code, key):
 
     resolved = bin2dec(resolvedBinary)
     return resolved
-        
+    
 
+############################################################################
+############################################################################
+############################################################################
+########################## Conversiones ####################################
+############################################################################
+############################################################################
+############################################################################
 
 
 # Converts string into binary
@@ -58,6 +72,8 @@ def text2bin(text):
     array = bytearray(text, "utf8")
     for byte in array:
         binary = bin(byte)[2:]
+        while len(binary) < 8:
+            binary = "0" + binary
         binaryRepresentation = binaryRepresentation + binary
 
     return binaryRepresentation
@@ -84,6 +100,16 @@ def dec2bin(decimal, size=2):
     return binary
 
 
+############################################################################
+############################################################################
+############################################################################
+##################### FUNCIONES DEL ALGORITMO ##############################
+############################################################################
+############################################################################
+############################################################################
+############################################################################
+
+
 # Adapts given key to DES algorithm key required (64 bits long)
 def formatKey(actualKey):
     binaryKey = text2bin(actualKey)
@@ -96,8 +122,8 @@ def formatKey(actualKey):
 # Returns an input into binary, input can be either binary or hexadecimal
 def checkInput(code):
     inputType = "bin"
-    for letter in len(code):
-        if code(letter)!="0" and code(letter)!="1":
+    for letter in range(len(code)):
+        if code[letter]!="0" and code[letter]!="1":
             inputType = "hex"
 
     if inputType == "bin":
@@ -113,7 +139,7 @@ def splitBlocks(BinaryText):
         mBlocks.append(BinaryText[64*i:64*(i+1)])
 
     while len(mBlocks[nOfBlocks-1])<64:
-        mBlocks[nOfBlocks-1] = mBlocks[nOfBlocks-1] + mBlocks[nOfBlocks-1]
+        mBlocks[nOfBlocks-1] += mBlocks[nOfBlocks-1]
 
     mBlocks[nOfBlocks-1] = mBlocks[nOfBlocks-1][0:64]
     return mBlocks
@@ -122,42 +148,45 @@ def splitBlocks(BinaryText):
 def applyPerm(binary, perm):
     binaryPermutated = ""
     for i in range(len(perm)):
-        binaryPermutated = binaryPermutated + binary[perm[i]]
+        binaryPermutated = binaryPermutated + binary[perm[i]-1]
     
     return binaryPermutated
 
 # Splits the key into 16 subkeys needed for DES
 def splitKey(key):
-    subKeys = []
-
-    # Some bits get removed
     PermC1 = [57, 49, 41, 33, 25, 17, 9, 1, 58, 50, 42, 34, 26, 18, 10, 2, 59, 51, 43, 35, 27, 19, 11, 3, 60, 52, 44, 36, 63, 55, 47, 39, 31, 23, 15, 7, 62, 54, 46, 38, 30, 22, 14, 6, 61, 53, 45, 37, 29, 21, 13, 5, 28, 20, 12, 4]
-    Permutation = applyPerm(key, PermC1)
-
-    # Split left and right side of the key
     PermC2 = [14, 17, 11, 24, 1, 5, 3, 28, 15, 6, 21, 10, 23, 19, 12, 4, 26, 8, 16, 7, 27, 20, 13, 2, 41, 52, 31, 37, 47, 55, 30, 40, 51, 45, 33, 48, 44, 49, 39, 56, 34, 53, 46, 42, 50, 36, 29, 32]
-    C0 = Permutation[1:28]
-    D0 = Permutation[29:56]
+    subKeys = []
+    key = Permutation = applyPerm(key, PermC1)
+    C0 = Permutation[0:28]
+    D0 = Permutation[28:56]
 
-    for i in range(16):
+    for subKey in range(16):
         shift = 2
-        if i == 1 or i == 2 or i == 9 or i == 16:
+        if subKey == 0 or subKey == 1 or subKey == 8 or subKey == 15:
             shift = 1
-        C0 = np.roll(C0,-(28-shift))
-        D0 = np.roll(D0,-(28-shift))
+        C1 = []
+        D1 = []
+        C1[:0] = C0
+        D1[:0] = D0
+        C0 = ''.join(np.roll(C1,28-shift))
+        D0 = ''.join(np.roll(D1,28-shift))
         complete = str(C0) + str(D0)
-        subKeys[i] = applyPerm(complete, PermC2)
+        subKeys.append(applyPerm(complete, PermC2))
 
+    print(subKeys)
+    input()
     return subKeys
 
 # Applies XOR logic operation
 def XOR(one, another):
     if len(one) != len(another):
         print("XOR distintas longitudes")
+        exit()
     
     result = ""
-    for digit in len(one):
-        XOR = bool(one(digit)) != bool(another(digit))
+    for digit in range(len(one)):
+        XOR = bool(one[digit]) != bool(another[digit])
         if XOR:
             result += "1"
         else:
@@ -188,11 +217,13 @@ def applySBoxes(PartsOfS):
         value = dec2bin(value,4)
         SBoxesResult += value
 
+    return SBoxesResult
+
 def applyFeistelRounds(Li, Ri, subKeys):
-    for i in range(16):
+    for round in range(16):
         Rprev = Ri
         Lprev = Li
-        Ri = applyFeistel(Rprev, subKeys)
+        Ri = applyFeistel(Rprev, subKeys[round])
         Ri = XOR(Ri, Lprev)
         Li = Rprev
 
@@ -209,7 +240,8 @@ def applyFeistel(Ri, Ki):
     partsOfS = []
     start = 0
     for i in range(8):
-        partsOfS[i] = xor[start:start+6]
+        xor[start:start+6]
+        partsOfS.append(xor[start:start+6])
         start += 6
     Sboxes = applySBoxes(partsOfS)
 
@@ -217,12 +249,24 @@ def applyFeistel(Ri, Ki):
     PermP = [16, 7, 20, 21, 29, 12, 28, 17, 1, 15, 23, 26, 5, 18, 31, 10, 2, 8, 24, 14, 32, 27, 3, 9, 19, 13, 30, 6, 22, 11, 4, 25]
     return applyPerm(Sboxes, PermP)
 
+
+
+############################################################################
+############################################################################
+############################################################################
+############################################################################
+############################# DEBUGGING ####################################
+############################################################################
+############################################################################
+############################################################################
+
+
 def main():
 
-    cifrado = des("hola", "clave")
-    print(cifrado)
-    descifrado = unDes(cifrado, "clave")
-    print (descifrado)
+    cifrado = des("Aprendo DES", "DES")
+    print("\nCIFRADO COMPLETADO --->" + cifrado)
+    descifrado = unDes(cifrado, "DES")
+    print ("\n\nDESCIFRADO COMPLETADO --->" + str(descifrado) + "\n\n")
 
 
 if __name__ == "__main__":
