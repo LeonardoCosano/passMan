@@ -3,8 +3,10 @@
 from os import write
 from types import TracebackType 
 from utils import colors
+import des as ds
 import random
 import pyperclip
+import des
 
 # Generates a new entry for register
 def newAccount():
@@ -20,25 +22,30 @@ def newAccount():
     storageFile.close()
 
     if checkData(service, userId, password) == True:
-        addAccount(isNewService, service, userId, password)
+        key = input('\nIntroduce a ' + colors.GREEN + 'key' + colors.DEFAULT + ' for DES encryption: ').lower()
+        addAccount(isNewService, service, userId, password, key)
 
 # Write new data to storageFile
-def addAccount(isNewService, service, userId, password):
-    addStorageFile = open('storageFile', 'a')
+def addAccount(isNewService, service, userId, password, key):
+    #If there is not a previous registry, its added to chat
     if isNewService:
-        addStorageFile.write("+" + service + "\n-" + userId + "\n" + cipher(password) + "\n")
+        addStorageFile = open('storageFile', 'a')
+        addStorageFile.write("+" + service + "\n-" + userId + "\n" + cipher(password, key) + "\n")
         addStorageFile.close()
         return
     
+
+    # Save text before first service registry
     readStorageFile = open('storageFile', 'r')
-    text = ""
     serviceFound = False
+    text = ""
     while serviceFound == False:
         nextChar = readStorageFile.read(1)
         text = text + nextChar
         if text.find(service) == True:
             serviceFound = True
 
+    # 
     nextEntryFound = False
     while nextEntryFound == False:
         nextChar = readStorageFile.read(1)
@@ -47,9 +54,7 @@ def addAccount(isNewService, service, userId, password):
         else:
             text = text + nextChar
     
-    text = text + "-" + userId + "\n" + cipher(password) + "\n+" + readStorageFile.read()
-
-    
+    text += "-" + userId + "\n" + cipher(password,key) + "\n+" + readStorageFile.read()
     writeRegister = open("storageFile", "w")
     writeRegister.write(text)
     readStorageFile.close()
@@ -93,26 +98,58 @@ def generatePassword():
     pyperclip.copy(generatedPassword)
     return generatedPassword
 
+# Resumes information about to be registered at local file
+# Returns user confirmation
 def checkData(service, userId, password):
     print("\nIs everything correct? (y/n)")
     print("Service:\t" + colors.VIOLET + service + colors.DEFAULT)
     print("Username:\t" + colors.VIOLET + userId + colors.DEFAULT)
     confirmation = input("Password:\t" + colors.VIOLET + password + colors.DEFAULT + "\n")
 
-    if confirmation == "N":
-        return False
-    return True
+    if confirmation == "y":
+        return True
+    return False
+
+# Prints user information found after search by service
+# Text is complete storageFile info, index is first service ocurrence
+def printData(text, index, service, key):
+    indexService = index
+    indexNextService = text.find("+", indexService+1)
+    text = text[indexService:indexNextService]
+    nAccounts = text.count("-")
+
+    print(colors.GREEN + "\n~~~~~~~~~~~~~~~~~~~~~")
+    print(colors.DEFAULT + "Information found:" + colors.GREEN)
+    print("~~~~~~~~~~~~~~~~~~~~~"+ colors.DEFAULT)
+    indexEOF = text.find("\n", 1)
+    for account in range(nAccounts):
+        secondEOF = text.find("\n", indexEOF+1)
+        thirdEOF = text.find("\n", secondEOF+1)
+
+        print("Username:\t" + colors.VIOLET + text[indexEOF+2:secondEOF] + colors.DEFAULT)
+        secondEOF = text.find("\n", indexEOF+1)
+        print("Key:\t\t" + colors.VIOLET + decipher(text[secondEOF+1:thirdEOF], key) + colors.DEFAULT)
+        print(colors.GREEN +"~~~~~~~~~~~~~~~~~~~~~"+ colors.DEFAULT)
+
+        indexEOF = thirdEOF
+
+    eof=text.find("\n", 1)
+
+
+
 
 # Encripts text
-def cipher(password):
-    return password
+def cipher(password, key):
+    return ds.des(password,key)
+    #return password
 
 # Unencripts text
-def uncipher(password):
-    return password
+def decipher(password, key):
+    return ds.unDes(password,key)
+    #return password
 
 def searchAccount():
-    service = input('\n\nIntroduce the ' + colors.VIOLET + 'service' + colors.DEFAULT + ': ').lower()
+    service = input('\n\n1. Introduce the ' + colors.VIOLET + 'service' + colors.DEFAULT + ': ').lower()
     storageFile = open('storageFile', 'r')
     text = storageFile.read()
     index = text.find(service)
@@ -121,6 +158,6 @@ def searchAccount():
         Exit = input("Press " + colors.VIOLET + "any key" + colors.DEFAULT + " to continue...\n") 
         return
     
-    text = text[index+len(service):text.find("+",index)]
-    print(text.replace("-", "\n"))
+    key = input('2. Introduce the ' + colors.VIOLET + 'key' + colors.DEFAULT + ' for DES encryption: ')
+    printData(text, index, service, key)
     Exit = input("\nPress " + colors.VIOLET + "any key" + colors.DEFAULT + " to continue...\n")    

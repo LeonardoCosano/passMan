@@ -26,12 +26,11 @@ def des(text, key):
         cipher += message
     
     binaryCipher = cipher
-    print("CIFRADO BINARIO COMPLETO --->" + binaryCipher)
     hexadecimalCipher = bin2hex(binaryCipher)
     return hexadecimalCipher
 
 ############################
-# Runs algorithm uncipher ##
+# Runs algorithm decipher ##
 ############################
 
 def unDes(code, key):
@@ -40,7 +39,7 @@ def unDes(code, key):
     InitialPermInv = [40, 8, 48, 16, 56, 24, 64, 32, 39, 7, 47, 15, 55, 23, 63, 31, 38, 6, 46, 14, 54, 22, 62, 30, 37, 5, 45, 13, 53, 21, 61, 29, 36, 4, 44, 12, 52, 20, 60, 28, 35, 3, 43, 11, 51, 19, 59, 27, 34, 2, 42, 10, 50, 18, 58, 26, 33, 1, 41, 9, 49, 17, 57, 25]
     code = splitBlocks(checkInput(code))
     key = formatKey(key)
-    resolvedBinary = ""
+    resolvedBinary = []
     resolved = ""
 
     subKeys = np.flip(splitKey(key), 0)
@@ -50,9 +49,11 @@ def unDes(code, key):
         Ri = message[32:64]
         applyFeistelRounds(Li,Ri,subKeys)
         message = applyPerm(Ri + Li, InitialPermInv)
-        resolvedBinary += message
+        resolvedBinary.append(message)
 
-    resolved = bin2dec(resolvedBinary)
+
+    resolvedDec = bin2decimal(resolvedBinary)
+    resolved = dec2text(resolvedDec)
     return resolved
     
 
@@ -99,6 +100,25 @@ def dec2bin(decimal, size=2):
         binary = "0" + binary
     return binary
 
+def bin2decimal(binary):
+    decimal = []
+    for i in range(len(binary)):
+        bin2decimalBlock(binary[i], decimal)
+    
+    return decimal
+
+def bin2decimalBlock(binaryString, decimal):
+    for i in range(8):
+        decimal.append(bin2dec(binaryString[i*8:i*8+8]))
+
+# TODO
+def dec2text(decimal):
+    text = ""
+    for i in range(len(decimal)):
+        text += chr(decimal[i])
+
+    return text
+
 
 ############################################################################
 ############################################################################
@@ -139,7 +159,8 @@ def splitBlocks(BinaryText):
         mBlocks.append(BinaryText[64*i:64*(i+1)])
 
     while len(mBlocks[nOfBlocks-1])<64:
-        mBlocks[nOfBlocks-1] += mBlocks[nOfBlocks-1]
+        mBlocks[nOfBlocks-1] += "0"
+    #   mBlocks[nOfBlocks-1] += mBlocks[nOfBlocks-1]
 
     mBlocks[nOfBlocks-1] = mBlocks[nOfBlocks-1][0:64]
     return mBlocks
@@ -174,14 +195,11 @@ def splitKey(key):
         complete = str(C0) + str(D0)
         subKeys.append(applyPerm(complete, PermC2))
 
-    print(subKeys)
-    input()
     return subKeys
 
 # Applies XOR logic operation
 def XOR(one, another):
     if len(one) != len(another):
-        print("XOR distintas longitudes")
         exit()
     
     result = ""
@@ -262,11 +280,13 @@ def applyFeistel(Ri, Ki):
 
 
 def main():
-
-    cifrado = des("Aprendo DES", "DES")
+    mensaje = "Aprendo DES"
+    clave = "DES"
+    
+    cifrado = des(mensaje, clave)
     print("\nCIFRADO COMPLETADO --->" + cifrado)
-    descifrado = unDes(cifrado, "DES")
-    print ("\n\nDESCIFRADO COMPLETADO --->" + str(descifrado) + "\n\n")
+    descifrado = unDes(cifrado, clave)
+    print ("\n\nDESCIFRADO COMPLETADO --->" + str(descifrado) + "\n")
 
 
 if __name__ == "__main__":

@@ -8,8 +8,10 @@ def main():
     option = writeMenu()
     while option != False:
         if option == 1:
+            system("cls")
             searchAccount()
         elif option == 2:
+            system("cls")
             newAccount()
         else:
             exit()
