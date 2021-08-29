@@ -78,6 +78,7 @@ def getPassword():
 # It includes letters, numbers and symbols.
 def generatePassword():
     alphabet = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "ñ", "o", "p", "q", "r", "s", "t", "u", "w", "x", "y", "z", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "Ñ", "O", "P", "Q", "R", "S", "T", "U", "W", "X", "Y", "Z"]
+    # la cecedilla da problemas con des
     tokens = ["@", "#", "*", "<", ">", "ç", "%", "$"]
     generatedPassword = ""
 
