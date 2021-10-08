@@ -140,14 +140,13 @@ def printData(text, index, service, key):
 
 
 # Encripts text
-def cipher(password, key):
-    return ds.des(password,key)
-    #return password
+def cipher(text, key):
+    return ds.tripleDes(text,key)
 
 # Unencripts text
-def decipher(password, key):
-    return ds.unDes(password,key)
-    #return password
+def decipher(text, key):
+    return ds.text(text,key)
+
 
 def searchAccount():
     service = input('\n\n1. Introduce the ' + colors.VIOLET + 'service' + colors.DEFAULT + ': ').lower()

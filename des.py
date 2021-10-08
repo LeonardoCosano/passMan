@@ -287,26 +287,61 @@ def flip(array):
 ############################################################################
 ############################################################################
 ############################################################################
-############################################################################
-############################# DEBUGGING ####################################
+############################ Triple DES ####################################
 ############################################################################
 ############################################################################
 ############################################################################
 
+
+def des3times(message, key):
+    keys = prepareKeys(key)
+    code = tripleDes(message, keys)
+
+    return code
+
+def undes3times(code, key):
+    keys = prepareKeys(key)
+    message = tripleUnDes(code, keys)
+
+    return message
+
+def prepareKeys(keyword):
+    claves = []
+    portionSize = int(len(keyword)/3)
+    init = 0
+    for i in range(3):
+        claves.append(keyword[init:init+portionSize])
+        init += portionSize
+
+    return claves
+
+def tripleDes(mensaje, claves):
+    return des(des(des(mensaje, claves[0]), claves[1]), claves[2])
+
+def tripleUnDes(cifrado3des, claves):
+    return unDes(unDes(unDes(cifrado3des,claves[2]),claves[1]), claves[0])
+
+############################################################################
+############################################################################
+############################################################################
+############################################################################
+########################### MANUAL TESTING #################################
+############################################################################
+############################################################################
+############################################################################
 
 def main():
-    mensaje = "sepalosepalo"
-    clave = "oculta2"
-    #claveIncorrecta = "LEONARDO"
+    message = "áéíóú"
+    key = "1a2b3c4d"
+    #wrongKey = "LEONARDO"
     
-    cifrado = des(mensaje, clave)
-    descifradoCorrecto = unDes(cifrado, clave)
-    #descifradoIncorrecto = unDes(cifrado, claveIncorrecta)
+    resultCiph = des(message, key)
+    result = unDes(resultCiph, key)
+    #wrongResult = unDes(cifrado, claveIncorrecta)
 
-    print("\nCIFRADO COMPLETADO --->" + cifrado + "<---\n")
-    print("DESCIFRADO CORRECTO --->" + descifradoCorrecto + "<---\n")
-    #print("DESCIFRADO INCORRECTO --->" + descifradoIncorrecto + "<---\n")
-
+    print("\nCIFRADO COMPLETADO --->" + resultCiph + "<---\n")
+    print("DESCIFRADO CORRECTO --->" + result + "<---\n")
+    #print("DESCIFRADO INCORRECTO --->" + wrongResult + "<---\n")
 
 if __name__ == "__main__":
     main()
